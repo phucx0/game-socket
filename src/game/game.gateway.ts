@@ -14,7 +14,13 @@ type PlayerState = {
   y: number;
   z: number;
   rotY: number;
-  anim: string;
+  input: {
+    forward: boolean,
+    back: boolean,
+    left: boolean,
+    right: boolean,
+    jump: boolean
+  }
 };
 
 @WebSocketGateway({ cors: true })
@@ -32,7 +38,13 @@ export class GameGateway {
       name: data.name,
       x: 0, y: 0, z: 0,
       rotY: 0,
-      anim: 'Idle',
+      input: {
+        forward: false,
+        back: false,
+        left: false,
+        right: false,
+        jump: false
+      }
     });
     // Gửi danh sách players hiện tại cho người mới
     const others = Array.from(this.players.values()).filter(
@@ -44,7 +56,7 @@ export class GameGateway {
   }
 
   @SubscribeMessage('player:move')
-  handleMove(client: Socket, data: { x: number; y: number; z: number; rotY: number; anim: string }) {
+  handleMove(client: Socket, data: { x: number; y: number; z: number; rotY: number; input: PlayerState['input']; }) {
     const player = this.players.get(client.id);
     if (!player) return;
     Object.assign(player, data);
